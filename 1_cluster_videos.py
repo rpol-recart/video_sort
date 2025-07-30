@@ -11,12 +11,13 @@ import argparse  # Добавлен для аргументов командно
 # --- НАСТРОЙКИ ---
 CONFIG = {
     # 1. Пути
-    "video_source_dir": "/data/raw_videos",
-    "output_dir": "/data/processing_outputs",
+    "video_source_dir": "video",
+    "output_dir": "processing_outputs",
 
     # 2. Параметры создания отпечатков
     # На каких секундах видео брать кадры для "отпечатка"
     "fingerprint_points_sec": [5, 15, 25, 35, 45, 55],
+    "fingerprint_points_count" : 100,
     
     # 3. Параметры кластеризации
     # Порог. Если среднее расстояние Хэмминга < этого значения, видео считаются дубликатами.
@@ -223,7 +224,7 @@ def main(args):
     print(f"Файл со списком уникальных видео: '{output_list_path}'")
     
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Поиск дубликатов видео с помощью перцептивных хешей."),
+    parser = argparse.ArgumentParser(description="Поиск дубликатов видео с помощью перцептивных хешей.")
     parser.add_argument('-w', '--workers',
                                     type=int,
                                     default=5, # Значение по умолчанию
