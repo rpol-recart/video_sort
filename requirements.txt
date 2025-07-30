@@ -2,3 +2,4 @@ opencv-python-headless
 imagehash 
 Pillow 
 tqdm
+scikit-image
