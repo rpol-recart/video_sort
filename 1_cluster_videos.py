@@ -175,14 +175,14 @@ def main(args):
                 min_distance = dist
                 best_cluster = cluster
             
-    # Этап 2: Принять решение на основе лучшего найденного варианта
-    # Если лучший найденный кластер существует и расстояние до него меньше порога...
-    if best_cluster and min_distance < CONFIG["phash_cluster_threshold"]:
-        # ...добавляем видео в этот самый лучший кластер.
-        best_cluster.append(video_data)
-    else:
-        # Иначе (если кластеров еще нет или ни один не подошел) - создаем новый.
-        clusters.append([video_data])
+        # Этап 2: Принять решение на основе лучшего найденного варианта
+        # Если лучший найденный кластер существует и расстояние до него меньше порога...
+        if best_cluster and min_distance < CONFIG["phash_cluster_threshold"]:
+            # ...добавляем видео в этот самый лучший кластер.
+            best_cluster.append(video_data)
+        else:
+            # Иначе (если кластеров еще нет или ни один не подошел) - создаем новый.
+            clusters.append([video_data])
 
     # Собираем пути к представителям кластеров
     unique_video_representatives = [cluster[0]["path"] for cluster in clusters]
