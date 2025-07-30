@@ -10,9 +10,9 @@ import time
 CONFIG = {
     # 1. Пути
     # Директория, где лежат результаты предыдущего скрипта
-    "processing_input_dir": "/data/processing_outputs", 
+    "processing_input_dir": "processing_outputs", 
     # Директория, куда будут сохраняться отобранные кадры
-    "frame_output_dir": "/data/extracted_frames",
+    "frame_output_dir": "extracted_frames",
     
     # 2. Имена файлов
     # Входной файл со списком уникальных видео
