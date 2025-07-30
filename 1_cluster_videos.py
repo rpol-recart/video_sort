@@ -34,8 +34,9 @@ CONFIG = {
 
 def get_video_fingerprint(video_path):
     """
-    Извлекает кадры из видео, вычисляет их pHash и возвращает как "отпечаток".
-    Возвращает кортеж (путь_к_видео, список_хешей_в_виде_строк).
+    Извлекает заданное количество кадров, равномерно распределенных по длине видео,
+    вычисляет их pHash и возвращает "отпечаток".
+    Подходит для видео любой длины.
     """
     try:
         cap = cv2.VideoCapture(video_path)
@@ -44,27 +45,42 @@ def get_video_fingerprint(video_path):
             return (video_path, [])
 
         fps = cap.get(cv2.CAP_PROP_FPS)
-        # Если FPS не читается, видео скорее всего повреждено
-        if fps == 0:
+        frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+
+        # Проверка на жизнеспособность видеофайла
+        if fps == 0 or frame_count < CONFIG["fingerprint_points_count"]:
             cap.release()
+            # print(f"Видео слишком короткое или повреждено: {video_path}")
             return (video_path, [])
             
         fingerprint_hashes = []
-        for sec in CONFIG["fingerprint_points_sec"]:
-            frame_id = int(fps * sec)
+        points_count = CONFIG["fingerprint_points_count"]
+        
+        # Генерируем точки для взятия кадров
+        # Мы берем кадры из промежутка от 10% до 95% длительности,
+        # чтобы избежать вступительных и заключительных титров.
+        for i in range(points_count):
+            # Рассчитываем относительную позицию кадра
+            # Например, для 6 точек это будут позиции ~0.1, 0.27, 0.44, 0.61, 0.78, 0.95
+            relative_position = 0.1 + (i / (points_count - 1)) * 0.85 if points_count > 1 else 0.5
+            frame_id = int(frame_count * relative_position)
+            
             cap.set(cv2.CAP_PROP_POS_FRAMES, frame_id)
             ret, frame = cap.read()
             if ret:
                 pil_img = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
                 fingerprint_hashes.append(str(imagehash.phash(pil_img)))
+            else:
+                # Если какой-то кадр не удалось прочитать, лучше считать отпечаток невалидным
+                cap.release()
+                return (video_path, [])
         
         cap.release()
         
-        # Проверяем, что отпечаток полный
-        if len(fingerprint_hashes) == len(CONFIG["fingerprint_points_sec"]):
+        # Проверяем, что удалось собрать все запланированные хеши
+        if len(fingerprint_hashes) == points_count:
             return (video_path, fingerprint_hashes)
         else:
-            # Если удалось извлечь не все кадры, считаем отпечаток невалидным
             return (video_path, [])
             
     except Exception as e:
